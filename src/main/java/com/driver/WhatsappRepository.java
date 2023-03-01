@@ -51,6 +51,7 @@ public class WhatsappRepository {
         //If createGroup is called for these userLists in the same order, their group names would be "Group 1", "Evan", and "Group 2" respectively.
 
         int usersCount = users.size();
+
         if(usersCount <= 2) {
             Group newGroup = new Group(users.get(1).getName(), usersCount);
             // updating group user map
@@ -115,7 +116,7 @@ public class WhatsappRepository {
         } else {
             List<User> groupUsers = groupUserMap.get(group);
 
-            if(adminMap.get(group) != approver || !groupUsers.contains(approver)){
+            if(!adminMap.get(group).getMobile().equals(approver.getMobile())){
                 throw new Exception("Approver does not have rights");
             } else {
                 if(!groupUsers.contains(user)) {
