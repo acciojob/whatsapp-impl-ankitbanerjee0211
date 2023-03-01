@@ -88,22 +88,21 @@ public class WhatsappRepository {
         //Throw "You are not allowed to send message" if the sender is not a member of the group
         //If the message is sent successfully, return the final number of messages in that group.
 
-        if(groupUserMap.containsKey(group)){
+        if(!groupUserMap.containsKey(group)){
             throw new Exception("Group does not exist");
+        } else {
+            List<User> groupUsers = groupUserMap.get(group);
+            if(!groupUsers.contains(sender)) {
+                throw new Exception("You are not allowed to send message");
+            } else {
+                senderMap.put(message, sender);
+                List<Message> messages = groupMessageMap.getOrDefault(group, new ArrayList<>());
+                messages.add(message);
+                groupMessageMap.put(group, messages);
+
+                return messages.size();
+            }
         }
-
-        List<User> groupUsers = groupUserMap.get(group);
-        if(!groupUsers.contains(sender)) {
-            throw new Exception("You are not allowed to send message");
-        }
-
-        senderMap.put(message, sender);
-        List<Message> messages = groupMessageMap.getOrDefault(group, new ArrayList<>());
-        messages.add(message);
-        groupMessageMap.put(group, messages);
-
-        return messages.size();
-
     }
 
     public String changeAdmin(User approver, User user, Group group) throws Exception{
@@ -112,16 +111,16 @@ public class WhatsappRepository {
         //Throw "User is not a participant" if the user is not a part of the group
         //Change the admin of the group to "user" and return "SUCCESS". Note that at one time there is only one admin and the admin rights are transferred from approver to user.
 
-        if(groupUserMap.containsKey(group)){
+        if(!groupUserMap.containsKey(group)){
             throw new Exception("Group does not exist");
         } else {
             List<User> groupUsers = groupUserMap.get(group);
 
-            if(!groupUsers.contains(user)) {
-                throw new Exception("User is not a participant");
+            if(adminMap.get(group) != approver || !groupUsers.contains(approver)){
+                throw new Exception("Approver does not have rights");
             } else {
-                if(adminMap.get(group) != approver || !groupUsers.contains(approver)){
-                    throw new Exception("Approver does not have rights");
+                if(!groupUsers.contains(user)) {
+                    throw new Exception("User is not a participant");
                 } else {
                     adminMap.put(group, user);
                     return "SUCCESS";
