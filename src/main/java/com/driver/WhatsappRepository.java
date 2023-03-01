@@ -90,19 +90,20 @@ public class WhatsappRepository {
 
         if(groupUserMap.containsKey(group)){
             throw new Exception("Group does not exist");
-        } else {
-            List<User> groupUsers = groupUserMap.get(group);
-            if(!groupUsers.contains(sender)) {
-                throw new Exception("You are not allowed to send message");
-            } else {
-                senderMap.put(message, sender);
-                List<Message> messages = groupMessageMap.getOrDefault(group, new ArrayList<>());
-                messages.add(message);
-                groupMessageMap.put(group, messages);
-
-                return messages.size();
-            }
         }
+
+        List<User> groupUsers = groupUserMap.get(group);
+        if(!groupUsers.contains(sender)) {
+            throw new Exception("You are not allowed to send message");
+        }
+
+        senderMap.put(message, sender);
+        List<Message> messages = groupMessageMap.getOrDefault(group, new ArrayList<>());
+        messages.add(message);
+        groupMessageMap.put(group, messages);
+
+        return messages.size();
+
     }
 
     public String changeAdmin(User approver, User user, Group group) throws Exception{
@@ -116,11 +117,11 @@ public class WhatsappRepository {
         } else {
             List<User> groupUsers = groupUserMap.get(group);
 
-            if(!adminMap.get(group).getMobile().equals(approver.getMobile())){
-                throw new Exception("Approver does not have rights");
+            if(!groupUsers.contains(user)) {
+                throw new Exception("User is not a participant");
             } else {
-                if(!groupUsers.contains(user)) {
-                    throw new Exception("User is not a participant");
+                if(adminMap.get(group) != approver || !groupUsers.contains(approver)){
+                    throw new Exception("Approver does not have rights");
                 } else {
                     adminMap.put(group, user);
                     return "SUCCESS";
